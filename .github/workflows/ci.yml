@@ -26,6 +26,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check syntax (safe mode)
+        run: |
+          files=(
+            App.js
+            supabase.js
+            screens/LoginScreen.js
+            screens/NewsScreen.js
+            screens/AdminDashboardScreen.js
+            screens/SubmitArticleScreen.js
+            screens/ProfileScreen.js
+            components/NewsCard.js
+          )
+      
+          for file in "${files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "Checking $file"
+              npx --yes acorn --ecma2022 --module "$file" > /dev/null || exit 1
+            else
+              echo "$file not found, skipping"
+            fi
+          done
+      
       - name: Run lint (if available)
         run: npm run lint --if-present
 
