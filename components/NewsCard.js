@@ -27,7 +27,7 @@ const IMAGE_HEIGHT = USABLE_HEIGHT * 0.41; // Reduced (was 0.4-0.55 before)
 const CONTENT_HEIGHT = USABLE_HEIGHT * 0.59; // Increased (was 0.45-0.6 before)
 
 const NewsCard = React.memo(({ 
-  article, user, userProfile, onEngagement, index, connectionStatus 
+  article, user, userProfile, onEngagement, index, connectionStatus, toggleNav 
 }) => {
   // All existing state variables remain the same
   const [userEngagements, setUserEngagements] = useState({
@@ -315,7 +315,7 @@ const handleShare = useCallback(async () => {
   ).current;
 
   const getImageUrl = useCallback(() => {
-    const imageSource = article?.imageurl || article?.imagepath;
+    const imageSource = article?.image_url || article?.image_path;
     if (!imageSource) return null;
     
     if (imageSource.startsWith('http')) {
@@ -331,7 +331,7 @@ const handleShare = useCallback(async () => {
       console.error('Image URL generation failed:', error);
       return null;
     }
-  }, [article?.imageurl, article?.imagepath]);
+  }, [article?.image_url, article?.image_path]);
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -360,7 +360,7 @@ const handleShare = useCallback(async () => {
       <View ref={viewShotRef} style={styles.card} collapsable={false}>
         <TouchableOpacity 
           activeOpacity={1} 
-          onPress={() => {}}
+          onPress={toggleNav}
           {...panResponder.panHandlers}
           style={styles.cardTouchable}
         >
@@ -436,7 +436,9 @@ const handleShare = useCallback(async () => {
             <View style={styles.engagementRow}>
 
               <TouchableOpacity
-                onPress={() => handleEngagement('like')}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleEngagement('like')}}
                 style={[styles.engageBtn, userEngagements.liked && styles.engageBtnActive]}
                 disabled={engaging}
               >
@@ -447,7 +449,9 @@ const handleShare = useCallback(async () => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handleEngagement('dislike')}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleEngagement('dislike')}}
                 style={[styles.engageBtn, userEngagements.disliked && styles.engageBtnActive]}
                 disabled={engaging}
               >
@@ -472,14 +476,17 @@ const handleShare = useCallback(async () => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handleEngagement('bookmark')}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleEngagement('bookmark')
+                }}
                 style={[
                   styles.engageBtn,
                   userEngagements.bookmarked && styles.engageBtnActive
                 ]}
               >
                 <Octicons
-                  name={userEngagements.bookmarked ? 'bookmark-fill' : 'bookmark'}
+                  name={userEngagements.bookmarked ? 'bookmark-filled' : 'bookmark'}
                   size={22}
                   color={userEngagements.bookmarked ? '#2196F3' : '#666'}
                 />

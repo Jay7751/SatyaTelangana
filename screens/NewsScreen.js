@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import NewsCard from '../components/NewsCard';  // Custom news card component
 import { supabase } from '../supabase';         // Database connection
-
-
+import { TouchableWithoutFeedback } from 'react-native';
+import { Pressable } from 'react-native';
 // Get device screen dimensions for responsive design calculations
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -21,7 +21,7 @@ const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const PAGE_SIZE = 10;                          // Number of articles to load per page
 
 // NewsScreen component - displays the main news feed with infinite scroll
-export default function NewsScreen({ user, userProfile, connectionStatus }) {
+export default function NewsScreen({ user, userProfile, connectionStatus, toggleNav }) {
   // State for storing the list of articles
   const [articles, setArticles] = useState([]);
   
@@ -137,15 +137,17 @@ export default function NewsScreen({ user, userProfile, connectionStatus }) {
 
   // Function to render individual article item
   const renderArticle = useCallback(({ item, index }) => (
+    
     <NewsCard
-      article={item}                    // Pass article data
-      user={user}                       // Pass current user
-      userProfile={userProfile}         // Pass user profile
-      onEngagement={handleEngagement}   // Pass engagement handler
-      index={index}                     // Pass index for staggered animations
-      connectionStatus={connectionStatus} // Pass connection status
+      article={item}
+      user={user}
+      userProfile={userProfile}
+      onEngagement={handleEngagement}
+      index={index}
+      connectionStatus={connectionStatus}
+      toggleNav={toggleNav}
     />
-  ),[user, userProfile, connectionStatus, handleEngagement]);
+  ), [user, userProfile, connectionStatus, handleEngagement, toggleNav]);
 
   // Function to render loading indicator at bottom of list
   const renderFooter = () => {
@@ -185,20 +187,20 @@ export default function NewsScreen({ user, userProfile, connectionStatus }) {
 
   // Render main news feed
   return (
-    <View style={styles.container}>
+    <View style={styles.container} collapsable={false}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       <FlatList
         data={articles}                           // Article data array
         renderItem={renderArticle}                // Render function for each item
         keyExtractor={(item, index) => `${item.id}-${index}`} // Unique key for each item
-        
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 0,
           paddingBottom: 0,
         }}
         // Pull to refresh configuration
         refreshControl={
-          <RefreshControl
+          <RefreshControl              
             refreshing={refreshing}               // Show refresh indicator
             onRefresh={onRefresh}                 // Refresh handler
             tintColor="#FFFFFF"                   // White color for dark background
@@ -210,21 +212,21 @@ export default function NewsScreen({ user, userProfile, connectionStatus }) {
         onEndReachedThreshold={0.5}               // Load more when 50% from bottom
         onEndReached={loadMoreArticles}           // Load more handler
         ListFooterComponent={renderFooter}        // Footer with loading indicator
-        
-        // Performance optimizations
+          
+          // Performance optimizations
         removeClippedSubviews={true}              // Remove off-screen items from memory
         initialNumToRender={2}                    // Only render first 3 items initially
         maxToRenderPerBatch={2}                   // Render 3 items per batch
         windowSize={3}                            // Keep 5 screens worth of items in memory
-        
-        // Smooth scrolling configuration
+          
+          // Smooth scrolling configuration
         showsVerticalScrollIndicator={false}      // Hide scroll bar
         pagingEnabled={true}                      // Enable page-by-page scrolling
         snapToInterval={SCREEN_HEIGHT}            // Snap to each card
         decelerationRate="fast"                   // Quick deceleration
         snapToAlignment="start"                   // Snap to start of each item
-        
-        // Responsive item layout
+          
+          // Responsive item layout
         getItemLayout={(data, index) => ({
           length: SCREEN_HEIGHT,                  // Each item is full screen height
           offset: SCREEN_HEIGHT * index,         // Calculate offset for each item

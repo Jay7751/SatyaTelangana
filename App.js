@@ -24,6 +24,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('online');
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [showNav, setShowNav] = useState(true);
 
   // All existing useEffect and initialization functions remain the same
   useEffect(() => {
@@ -246,7 +247,10 @@ export default function App() {
         {renderConnectionStatus()}
         <Tab.Navigator
           screenOptions={{
-            tabBarStyle: styles.tabBar,
+            tabBarStyle: [
+              styles.tabBar,
+              { display: showNav ? 'flex' : 'none' }
+            ],
             tabBarActiveTintColor: '#60A5FA',
             tabBarInactiveTintColor: '#9CA3AF',
             tabBarLabelStyle: styles.tabBarLabel,
@@ -276,6 +280,7 @@ export default function App() {
                 user={user}
                 userProfile={userProfile}
                 connectionStatus={connectionStatus}
+                toggleNav={() => setShowNav(prev => !prev)}
                 onEngagement={(articleId, type, value) => {
                   console.log(`Engagement: ${type} on article ${articleId}: ${value}`);
                 }}

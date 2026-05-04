@@ -88,6 +88,7 @@ export default function SubmitArticleScreen({ user, userProfile }) {
       // Generate unique filename
       const fileExt = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
       const fileName = `article-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      //const fileName = `article_images_list/article-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
       // Upload blob to Supabase
       const { data, error } = await supabase.storage
@@ -268,23 +269,23 @@ export default function SubmitArticleScreen({ user, userProfile }) {
         summary: summary.trim(),
         content: summary.trim(),
         category: category,
-        imagepath: imagePath,
-        imageurl: imageUrl,
-        sourceurl: sourceUrl.trim(),
-        sourcelink: sourceUrl.trim(),
-        authorid: user.id,
-        authorname: userProfile.name,
-        journalistid: user.id,
-        journalistname: userProfile.name,
+        image_path: imagePath,
+        image_url: imageUrl,
+        source_url: sourceUrl.trim(),
+        source_link: sourceUrl.trim(),
+        author_id: user.id,
+        author_name: userProfile.name,
+        journalist_id: user.id,
+        journalist_name: userProfile.name,
         status: 'pending',
-        isbreakingnews: false,
-        likescount: 0,
-        dislikescount: 0,
-        sharescount: 0,
-        bookmarkscount: 0,
-        viewscount: 0,
-        createdat: new Date().toISOString(),
-        updatedat: new Date().toISOString(),
+        is_breaking_news: false,
+        likes_count: 0,
+        dislikes_count: 0,
+        shares_count: 0,
+        bookmarks_count: 0,
+        views_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       console.log('Submitting article data:', articleData);
@@ -351,143 +352,146 @@ export default function SubmitArticleScreen({ user, userProfile }) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
-      
-      <LinearGradient colors={['#1E40AF', '#3B82F6', '#60A5FA']} style={styles.header}>
+
+      {/* HEADER */}
+      <LinearGradient
+        colors={['#1E40AF', '#3B82F6', '#60A5FA']}
+        style={styles.header}
+      >
         <Text style={styles.headerTitle}>Submit Article</Text>
-        <Text style={styles.headerSubtitle}>Share news with your community</Text>
+        <Text style={styles.headerSubtitle}>
+          Share news with your community
+        </Text>
       </LinearGradient>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.form}>
-          
-          {/* IMAGE PICKER SECTION */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Article Image (Optional)</Text>
-            <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-              {image ? (
-                <View>
-                  <Image source={{ uri: image.uri }} style={styles.imagePreview} />
-                  <View style={styles.imageOverlay}>
-                    <Text style={styles.imageChangeText}>Tap to change image</Text>
-                    <Text style={styles.imageInfoText}>
-                      {image.fileSize ? `${(image.fileSize / (1024 * 1024)).toFixed(1)}MB` : ''} • {image.width}x{image.height}
+      {/* BODY */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{ paddingBottom: 140 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.form}>
+
+            {/* HEADLINE */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Headline</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter headline"
+                value={headline}
+                onChangeText={setHeadline}
+              />
+            </View>
+
+            {/* SUMMARY */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Summary</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                placeholder="Enter summary"
+                multiline
+                value={summary}
+                onChangeText={setSummary}
+              />
+            </View>
+
+            {/* SOURCE URL */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Source URL</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="https://example.com"
+                value={sourceUrl}
+                onChangeText={setSourceUrl}
+              />
+            </View>
+
+            {/* IMAGE PICKER */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Upload Image</Text>
+
+              <TouchableOpacity
+                style={styles.imagePicker}
+                onPress={pickImage}
+              >
+                {image ? (
+                  <Image
+                    source={{ uri: image.uri }}
+                    style={styles.imagePreview}
+                  />
+                ) : (
+                  <View style={styles.imagePickerPlaceholder}>
+                    <Text style={styles.imagePickerIcon}>📷</Text>
+                    <Text style={styles.imagePickerText}>
+                      Tap to select image
                     </Text>
                   </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* CATEGORY */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Category</Text>
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.categoryContainer}>
+                  {categories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[
+                        styles.categoryChip,
+                        category === cat && {
+                          backgroundColor: getCategoryColor(cat),
+                        }
+                      ]}
+                      onPress={() => setCategory(cat)}
+                    >
+                      <Text
+                        style={[
+                          styles.categoryText,
+                          category === cat && { color: '#fff' }
+                        ]}
+                      >
+                        {cat.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              ) : (
-                <View style={styles.imagePickerPlaceholder}>
-                  <Text style={styles.imagePickerIcon}>📷</Text>
-                  <Text style={styles.imagePickerText}>Tap to add image</Text>
-                  <Text style={styles.imageSizeHint}>Max 10MB • JPG, PNG, WebP</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
+              </ScrollView>
+            </View>
 
-          {/* HEADLINE INPUT */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Headline *</Text>
-            <TextInput
-              style={styles.textInput}
-              value={headline}
-              onChangeText={setHeadline}
-              placeholder="Enter a compelling headline..."
-              placeholderTextColor="#9CA3AF"
-              maxLength={200}
-              multiline
-              textAlignVertical="top"
-              returnKeyType="next"
-            />
-            <Text style={styles.charCount}>{headline.length}/200</Text>
-          </View>
-
-          {/* SUMMARY INPUT */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Summary *</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              value={summary}
-              onChangeText={setSummary}
-              placeholder="Write a brief summary of the article..."
-              placeholderTextColor="#9CA3AF"
-              multiline
-              maxLength={1000}
-              textAlignVertical="top"
-              returnKeyType="next"
-            />
-            <Text style={styles.charCount}>{summary.length}/1000</Text>
-          </View>
-
-          {/* SOURCE URL INPUT */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Source URL *</Text>
-            <TextInput
-              style={styles.textInput}
-              value={sourceUrl}
-              onChangeText={setSourceUrl}
-              placeholder="https://example.com/news-article"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="url"
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="done"
-            />
-          </View>
-
-          {/* CATEGORY SELECTION */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Category *</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryContainer}>
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  onPress={() => setCategory(cat)}
-                  style={[
-                    styles.categoryChip,
-                    { borderColor: getCategoryColor(cat) },
-                    { backgroundColor: category === cat ? getCategoryColor(cat) : '#FFFFFF' }
-                  ]}
-                >
-                  <Text style={[
-                    styles.categoryText,
-                    { color: category === cat ? '#FFFFFF' : getCategoryColor(cat) }
-                  ]}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* SUBMIT BUTTON */}
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={uploading}
-            style={[styles.submitButton, uploading && styles.submitButtonDisabled]}
-          >
-            <LinearGradient
-              colors={uploading ? ['#9CA3AF', '#6B7280'] : ['#059669', '#10B981']}
-              style={styles.submitButtonGradient}
+            {/* SUBMIT BUTTON */}
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                uploading && styles.submitButtonDisabled
+              ]}
+              onPress={handleSubmit}
+              disabled={uploading}
             >
-              {uploading ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <ActivityIndicator color="#FFFFFF" style={{ marginRight: 10 }} />
+              <LinearGradient
+                colors={['#059669', '#10B981']}
+                style={styles.submitButtonGradient}
+              >
+                {uploading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
                   <Text style={styles.submitButtonText}>
-                    {image ? 'Uploading Image & Submitting...' : 'Submitting...'}
+                    Submit Article
                   </Text>
-                </View>
-              ) : (
-                <Text style={styles.submitButtonText}>Submit for Review</Text>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
 
-          <Text style={styles.helpText}>
-            * Required fields. Your article will be reviewed by our editorial team before publication.
-            {image && ' Images are automatically optimized for faster loading.'}
-          </Text>
-        </KeyboardAvoidingView>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
