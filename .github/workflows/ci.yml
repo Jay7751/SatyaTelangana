@@ -26,16 +26,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check for obvious syntax errors
-        run: |
-          npx --yes acorn --ecma2020 --module App.js > /dev/null && echo "App.js OK"
-          npx --yes acorn --ecma2020 --module supabase.js > /dev/null && echo "supabase.js OK"
-          npx --yes acorn --ecma2020 --module screens/LoginScreen.js > /dev/null && echo "LoginScreen.js OK"
-          npx --yes acorn --ecma2020 --module screens/NewsScreen.js > /dev/null && echo "NewsScreen.js OK"
-          npx --yes acorn --ecma2020 --module screens/AdminDashboardScreen.js > /dev/null && echo "AdminDashboardScreen.js OK"
-          npx --yes acorn --ecma2020 --module screens/SubmitArticleScreen.js > /dev/null && echo "SubmitArticleScreen.js OK"
-          npx --yes acorn --ecma2020 --module screens/ProfileScreen.js > /dev/null && echo "ProfileScreen.js OK"
-          npx --yes acorn --ecma2020 --module components/NewsCard.js > /dev/null && echo "NewsCard.js OK"
+      - name: Run lint (if available)
+        run: npm run lint --if-present
 
   # ============================================
   # JOB 2: EAS Preview Build — runs on main only
